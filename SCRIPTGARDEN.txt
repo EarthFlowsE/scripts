@@ -1,0 +1,59 @@
+local autoBuy = getgenv().autoBuy ~= nil and getgenv().autoBuy or true
+
+local fruits = {}
+
+if getgenv().Fruit1 then table.insert(fruits, getgenv().Fruit1) end
+if getgenv().Fruit2 then table.insert(fruits, getgenv().Fruit2) end
+if getgenv().Fruit3 then table.insert(fruits, getgenv().Fruit3) end
+if getgenv().Fruit4 then table.insert(fruits, getgenv().Fruit4) end
+if getgenv().Fruit5 then table.insert(fruits, getgenv().Fruit5) end
+
+if #fruits == 0 then
+    table.insert(fruits, "Carrot")
+end
+
+local currentFruitIndex = 1
+
+task.spawn(function()
+    print("[AutoBuy] Loop iniciado")
+
+    while true do
+        if autoBuy then
+            print("[AutoBuy] Ativado")
+
+            local currentFruit = fruits[currentFruitIndex]
+            print("[AutoBuy] Nome da puta atual:", currentFruit)
+
+            if currentFruit ~= "" and currentFruit:match("%a") then
+                print("[AutoBuy] Nome válido detectado:", currentFruit)
+
+                local args = {
+                    [1] = currentFruit,
+                }
+                print("[AutoPets] Enviando request para servidor com os baguio: ", args[1])
+
+                local success, result = pcall(function()
+                    return game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(unpack(args))
+                end)
+
+                if success then
+                    print("[AutoBuy] gg ez chora mais: ", result)
+                else
+                    warn("[AutoBuy] choramo: ", result)
+                end
+            else
+                warn("[AutoBuy] Nome inválido da puta: ", currentFruit)
+            end
+
+            currentFruitIndex = currentFruitIndex + 1
+            if currentFruitIndex > #fruits then
+                currentFruitIndex = 1
+            end
+
+        else
+            print("[AutoBuy] ta dormindo")
+        end
+
+        task.wait(5)
+    end
+end)
